@@ -1,4 +1,4 @@
-﻿@page "/AddNewStaff"
+﻿@page "/EditStaff/{Id}"
 @using WeatherForecastUI.Model
 @inject WeatherForecastUI.Services.UserService userService
 @inject NavigationManager NavigationManager
@@ -8,19 +8,23 @@
 @using System.Text.Json
 @using System.Text
 
-<h3>Add New Staff</h3>
+<h3>Edit Staff</h3>
 
 <form>
     <div class="row">
         <div class="col-md-8">
             <div class="for-group">
+                <label for="Id" class="control-label">Id</label>
+                <input form="Id" class="form-control" @bind="obj.Id" readonly="true"></input>
+            </div><br />
+            <div class="for-group">
                 <label for="Username" class="control-label">Username</label>
                 <input form="Username" class="form-control" @bind="obj.Username"></input>
-            </div><br/>
+            </div><br />
             <div class="for-group">
                 <label for="Email" class="control-label">Email</label>
                 <input form="Email" class="form-control" @bind="obj.Email"></input>
-            </div>
+            </div><br/>
             <div class="for-group">
                 <label for="PhoneNumber" class="control-label">Phone Number</label>
                 <input form="PhoneNumber" class="form-control" @bind="obj.PhoneNumber"></input>
@@ -33,14 +37,13 @@
                 <label for="Hobby" class="control-label">Hobby</label>
                 <input form="Hobby" class="form-control" @bind="obj.Hobby"></input>
             </div><br />
-
-            <br/>
+            <br />
         </div>
     </div>
     <div class="row">
         <div class="col-md-8">
             <div class="form-group">
-                <input type="button" class="btn btn-success" @onclick="@CreateNewUser" value="Create" />
+                <input type="button" class="btn btn-success" @onclick="@UpdateUser" value="Update Staff" />
                 <input type="button" class="btn btn-warning" @onclick="@Cancel" value="Cancel" />
             </div>
         </div>
@@ -48,39 +51,23 @@
 </form>
 
 @code {
+    [Parameter]
+    public string Id { get; set; }
+
     string API_URL = "https://localhost:7186/";
     User obj = new User();
 
+    protected override async Task OnInitializedAsync()
+    {
+        obj = await Task.Run(() => userService.GetUserById(Convert.ToInt32(Id)));
+    }
+
     // CRUD using internal services, instead of external API
-    protected async void CreateNewUser()
+    protected async void UpdateUser()
     {
-        await userService.AddNewUser(obj);
+        await userService.UpdateUserDetails(obj);
         NavigationManager.NavigateTo("staffList");
     }
-
-    //CRUD using request to external API 
-    protected async void CreateNewStaff()
-    {
-        var formData = new MultipartFormDataContent();
-        formData.Add(new StringContent(obj.Username), "Username");
-        formData.Add(new StringContent(obj.Email), "Email");
-        formData.Add(new StringContent(obj.PhoneNumber), "PhoneNumber");
-        formData.Add(new StringContent(obj.Skillsets), "Skillsets");
-        formData.Add(new StringContent(obj.Hobby), "Hobby");
-
-        string FullAPI_URL = API_URL + "api/Home/CreateNewStaff";
-
-        HttpClient httpClient = new HttpClient();
-        HttpResponseMessage response = await httpClient.PostAsync(FullAPI_URL, formData);
-        httpClient.Dispose();
-        using var responseStream = await response.Content.ReadAsStreamAsync();
-
-        string res = response.Content.ReadAsStringAsync().Result;
-        await JsRuntime.InvokeVoidAsync("alert", res);
-
-        NavigationManager.NavigateTo("staffList");
-    }
-
 
     protected async void Cancel()
     {
