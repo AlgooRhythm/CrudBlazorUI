@@ -1,5 +1,5 @@
 ﻿@page "/"
-@page "/staffList"
+@page "/Staff/staffList"
 @using WeatherForecastUI.Model
 @inject WeatherForecastUI.Services.UserService userService
 
@@ -11,7 +11,7 @@
 }
 else
 {
-    <NavLink class="nav-link" href="AddNewStaff">
+    <NavLink class="nav-link" href="Staff/AddNewStaff">
         <span class="oi oi-plus" aria-hidden="true">Add New Staff</span>
     </NavLink>
 
@@ -38,10 +38,10 @@ else
                     <td>@item.Skillsets</td>
                     <td>@item.Hobby</td>
                     <td>
-                        <a class="nav-link btn btn-primary" href="EditStaff/@item.Id">
+                        <a class="nav-link btn btn-primary" href="Staff/EditStaff/@item.Id">
                             <span class="oi oi-pencil" aria-hidden="true">Edit</span>
                         </a>
-                        <a class="nav-link btn btn-danger" href="DeleteStaff/@item.Id">
+                        <a class="nav-link btn btn-danger" href="Staff/DeleteStaff/@item.Id">
                             <span class="oi oi-trash" aria-hidden="true">Delete</span>
                         </a>
                     </td>
@@ -57,6 +57,5 @@ else
     protected override async Task OnInitializedAsync()
     {
         EmpObj = await Task.Run(() => userService.GetAllUsers());
-        // await this.refreshList();
     }
 }

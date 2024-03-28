@@ -1,4 +1,4 @@
-﻿@page "/AddNewStaff"
+﻿@page "/Staff/AddNewStaff"
 @using WeatherForecastUI.Model
 @inject WeatherForecastUI.Services.UserService userService
 @inject NavigationManager NavigationManager
@@ -55,7 +55,7 @@
     protected async void CreateNewStaffInternalServices()
     {
         await userService.AddNewUser(obj);
-        NavigationManager.NavigateTo("staffList");
+        NavigationManager.NavigateTo("Staff/staffList");
     }
 
     //CRUD using request to external API 
@@ -94,12 +94,12 @@
         finally { };
 
 
-        NavigationManager.NavigateTo("staffList");
+        NavigationManager.NavigateTo("Staff/staffList");
     }
 
 
     protected async void Cancel()
     {
-        NavigationManager.NavigateTo("staffList");
+        NavigationManager.NavigateTo("Staff/staffList");
     }
 }

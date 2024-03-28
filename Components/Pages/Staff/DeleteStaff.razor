@@ -1,4 +1,4 @@
-﻿@page "/EditStaff/{Id}"
+﻿@page "/Staff/DeleteStaff/{Id}"
 @using WeatherForecastUI.Model
 @inject WeatherForecastUI.Services.UserService userService
 @inject NavigationManager NavigationManager
@@ -8,7 +8,7 @@
 @using System.Text.Json
 @using System.Text
 
-<h3>Edit Staff</h3>
+<h3>Delete Staff</h3>
 
 <form>
     <div class="row">
@@ -19,23 +19,23 @@
             </div><br />
             <div class="for-group">
                 <label for="Username" class="control-label">Username</label>
-                <input form="Username" class="form-control" @bind="obj.Username"></input>
+                <input form="Username" class="form-control" @bind="obj.Username" readonly="true"></input>
             </div><br />
             <div class="for-group">
                 <label for="Email" class="control-label">Email</label>
-                <input form="Email" class="form-control" @bind="obj.Email"></input>
+                <input form="Email" class="form-control" @bind="obj.Email" readonly="true"></input>
             </div><br/>
             <div class="for-group">
                 <label for="PhoneNumber" class="control-label">Phone Number</label>
-                <input form="PhoneNumber" class="form-control" @bind="obj.PhoneNumber"></input>
+                <input form="PhoneNumber" class="form-control" @bind="obj.PhoneNumber" readonly="true"></input>
             </div><br />
             <div class="for-group">
                 <label for="Skillsets" class="control-label">Skillsets</label>
-                <input form="Skillsets" class="form-control" @bind="obj.Skillsets"></input>
+                <input form="Skillsets" class="form-control" @bind="obj.Skillsets" readonly="true"></input>
             </div><br />
             <div class="for-group">
                 <label for="Hobby" class="control-label">Hobby</label>
-                <input form="Hobby" class="form-control" @bind="obj.Hobby"></input>
+                <input form="Hobby" class="form-control" @bind="obj.Hobby" readonly="true"></input>
             </div><br />
             <br />
         </div>
@@ -43,7 +43,7 @@
     <div class="row">
         <div class="col-md-8">
             <div class="form-group">
-                <input type="button" class="btn btn-success" @onclick="@EditStaffExternalAPI" value="Update Staff" />
+                <input type="button" class="btn btn-danger" @onclick="@DeleteStaffExternalAPI" value="Delete Staff" />
                 <input type="button" class="btn btn-warning" @onclick="@Cancel" value="Cancel" />
             </div>
         </div>
@@ -62,15 +62,15 @@
         obj = await Task.Run(() => userService.GetUserById(Convert.ToInt32(Id)));
     }
 
-    // CRUD using internal services
-    protected async void UpdateStaffInternalServices()
+    // CRUD using internal services, instead of external API
+    protected async void DeleteStafInternalServices()
     {
-        await userService.UpdateUserDetails(obj);
-        NavigationManager.NavigateTo("staffList");
+        await userService.DeleteUser(obj);
+        NavigationManager.NavigateTo("Staff/staffList");
     }
 
     //CRUD using request to external API
-    protected async void EditStaffExternalAPI()
+    protected async void DeleteStaffExternalAPI()
     {
         var formData = new MultipartFormDataContent();
         formData.Add(new StringContent(obj.Id.ToString()), "Id");
@@ -80,13 +80,13 @@
         formData.Add(new StringContent(obj.Skillsets), "Skillsets");
         formData.Add(new StringContent(obj.Hobby), "Hobby");
 
-        string FullAPI_URL = API_URL + "api/Home/EditStaff";
+        string FullAPI_URL = API_URL + "api/Home/DeleteStaff/" + obj.Id;
 
         HttpClient httpClient = new HttpClient();
 
         try
         {
-            HttpResponseMessage response = await httpClient.PutAsync(FullAPI_URL, formData);
+            HttpResponseMessage response = await httpClient.DeleteAsync(FullAPI_URL);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -105,12 +105,11 @@
         }
         finally { };
 
-
-        NavigationManager.NavigateTo("staffList");
+        NavigationManager.NavigateTo("Staff/staffList");
     }
 
     protected async void Cancel()
     {
-        NavigationManager.NavigateTo("staffList");
+        NavigationManager.NavigateTo("Staff/staffList");
     }
 }
