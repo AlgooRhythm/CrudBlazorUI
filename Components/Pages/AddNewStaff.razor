@@ -40,7 +40,7 @@
     <div class="row">
         <div class="col-md-8">
             <div class="form-group">
-                <input type="button" class="btn btn-success" @onclick="@CreateNewUser" value="Create" />
+                <input type="button" class="btn btn-success" @onclick="@CreateNewStaff" value="Create" />
                 <input type="button" class="btn btn-danger" @onclick="@Cancel" value="Cancel" />
             </div>
         </div>
@@ -51,31 +51,35 @@
     string API_URL = "https://localhost:7186/";
     User obj = new User();
 
-    protected async void CreateNewUser()
-    {
-        await userService.AddNewUser(obj);
-        NavigationManager.NavigateTo("staffList");
-    }
-
-    // //Submit form Using API to other Web API application
+    //CRUD using internal services, instead of external API
     // protected async void CreateNewUser()
     // {
-    //     var formData = new MultipartFormDataContent();
-    //     // formData.Add(new StringContent(Name), "Name");
-    //     // formData.Add(new StringContent(Email), "Email");
-
-    //     string FullAPI_URL = API_URL + "api/Home/AddNotes";
-
-    //     HttpClient httpClient = new HttpClient();
-    //     HttpResponseMessage response = await httpClient.PostAsync(FullAPI_URL, formData);
-    //     httpClient.Dispose();
-    //     using var responseStream = await response.Content.ReadAsStreamAsync();
-
-    //     string res = response.Content.ReadAsStringAsync().Result;
-    //     await JsRuntime.InvokeVoidAsync("alert", res);
-
+    //     await userService.AddNewUser(obj);
     //     NavigationManager.NavigateTo("staffList");
     // }
+
+    //CRUD using request to external API 
+    protected async void CreateNewStaff()
+    {
+        var formData = new MultipartFormDataContent();
+        formData.Add(new StringContent(obj.Username), "Username");
+        formData.Add(new StringContent(obj.Email), "Email");
+        formData.Add(new StringContent(obj.PhoneNumber), "PhoneNumber");
+        formData.Add(new StringContent(obj.Skillsets), "Skillsets");
+        formData.Add(new StringContent(obj.Hobby), "Hobby");
+
+        string FullAPI_URL = API_URL + "api/Home/CreateNewStaff";
+
+        HttpClient httpClient = new HttpClient();
+        HttpResponseMessage response = await httpClient.PostAsync(FullAPI_URL, formData);
+        httpClient.Dispose();
+        using var responseStream = await response.Content.ReadAsStreamAsync();
+
+        string res = response.Content.ReadAsStringAsync().Result;
+        await JsRuntime.InvokeVoidAsync("alert", res);
+
+        NavigationManager.NavigateTo("staffList");
+    }
 
 
     protected async void Cancel()
