@@ -1,0 +1,85 @@
+﻿@page "/AddNewStaff"
+@using WeatherForecastUI.Model
+@inject WeatherForecastUI.Services.UserService userService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+@inject IJSRuntime JsRuntime
+@using System.Text.Json
+@using System.Text
+
+<h3>Add New Staff</h3>
+
+<form>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="for-group">
+                <label for="Username" class="control-label">Username</label>
+                <input form="Username" class="form-control" @bind="obj.Username"></input>
+            </div><br/>
+            <div class="for-group">
+                <label for="Email" class="control-label">Email</label>
+                <input form="Email" class="form-control" @bind="obj.Email"></input>
+            </div>
+            <div class="for-group">
+                <label for="PhoneNumber" class="control-label">Phone Number</label>
+                <input form="PhoneNumber" class="form-control" @bind="obj.PhoneNumber"></input>
+            </div><br />
+            <div class="for-group">
+                <label for="Skillsets" class="control-label">Skillsets</label>
+                <input form="Skillsets" class="form-control" @bind="obj.Skillsets"></input>
+            </div><br />
+            <div class="for-group">
+                <label for="Hobby" class="control-label">Hobby</label>
+                <input form="Hobby" class="form-control" @bind="obj.Hobby"></input>
+            </div><br />
+
+            <br/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <input type="button" class="btn btn-success" @onclick="@CreateNewUser" value="Create" />
+                <input type="button" class="btn btn-danger" @onclick="@Cancel" value="Cancel" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@code {
+    string API_URL = "https://localhost:7186/";
+    User obj = new User();
+
+    protected async void CreateNewUser()
+    {
+        await userService.AddNewUser(obj);
+        NavigationManager.NavigateTo("staffList");
+    }
+
+    // //Submit form Using API to other Web API application
+    // protected async void CreateNewUser()
+    // {
+    //     var formData = new MultipartFormDataContent();
+    //     // formData.Add(new StringContent(Name), "Name");
+    //     // formData.Add(new StringContent(Email), "Email");
+
+    //     string FullAPI_URL = API_URL + "api/Home/AddNotes";
+
+    //     HttpClient httpClient = new HttpClient();
+    //     HttpResponseMessage response = await httpClient.PostAsync(FullAPI_URL, formData);
+    //     httpClient.Dispose();
+    //     using var responseStream = await response.Content.ReadAsStreamAsync();
+
+    //     string res = response.Content.ReadAsStringAsync().Result;
+    //     await JsRuntime.InvokeVoidAsync("alert", res);
+
+    //     NavigationManager.NavigateTo("staffList");
+    // }
+
+
+    protected async void Cancel()
+    {
+        NavigationManager.NavigateTo("staffList");
+    }
+}

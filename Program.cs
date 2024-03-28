@@ -1,4 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using WeatherForecastUI.Components;
+using WeatherForecastUI.Context;
+using WeatherForecastUI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +21,13 @@ builder.Services.AddHttpClient();
 //                .AllowAnyHeader();
 //        });
 //});
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 

@@ -1,0 +1,62 @@
+﻿@page "/"
+@page "/staffList"
+@using WeatherForecastUI.Model
+@inject WeatherForecastUI.Services.UserService userService
+
+<h3>List of Staff</h3>
+
+@if (EmpObj == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    @* <p>
+        <input @bind="newNotes"/>&nbsp;
+        <button class="btn btn-primary" @onclick="AddNewNotes">Add Staff</button>
+    </p> *@
+
+    <NavLink class="nav-link" href="AddNewStaff">
+        <span class="oi oi-plus" aria-hidden="true">Add New Staff</span>
+    </NavLink>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>PhoneNumber</th>
+                <th>Skillsets</th>
+                <th>Hobby</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var note in EmpObj)
+            {
+                <tr>
+                    <td>@note.Username</td>
+                    <td>@note.Email</td>
+                    <td>@note.PhoneNumber</td>
+                    <td>@note.Skillsets</td>
+                    <td>@note.Hobby</td>
+                    <td>
+                        @* <button class="btn btn-primary" @onclick="(() => DeleteNotes(note.Id))">Edit</button> |
+                        <button class="btn btn-primary" @onclick="(() => DeleteNotes(note.Id))">Details</button> | *@
+                        @* <button class="btn btn-primary" @onclick="(() => DeleteNotes(note.Id))">Delete</button> *@
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code{
+    List<User> EmpObj;
+
+    protected override async Task OnInitializedAsync()
+    {
+        EmpObj = await Task.Run(() => userService.GetAllUsers());
+        // await this.refreshList();
+    }
+}
