@@ -43,7 +43,7 @@
     <div class="row">
         <div class="col-md-8">
             <div class="form-group">
-                <input type="button" class="btn btn-success" @onclick="@UpdateUser" value="Update Staff" />
+                <input type="button" class="btn btn-success" @onclick="@EditStaffExternalAPI" value="Update Staff" />
                 <input type="button" class="btn btn-warning" @onclick="@Cancel" value="Cancel" />
             </div>
         </div>
@@ -62,10 +62,50 @@
         obj = await Task.Run(() => userService.GetUserById(Convert.ToInt32(Id)));
     }
 
-    // CRUD using internal services, instead of external API
-    protected async void UpdateUser()
+    // CRUD using internal services
+    protected async void UpdateStaffInternalServices()
     {
         await userService.UpdateUserDetails(obj);
+        NavigationManager.NavigateTo("staffList");
+    }
+
+    //CRUD using request to external API
+    protected async void EditStaffExternalAPI()
+    {
+        var formData = new MultipartFormDataContent();
+        formData.Add(new StringContent(obj.Id.ToString()), "Id");
+        formData.Add(new StringContent(obj.Username), "Username");
+        formData.Add(new StringContent(obj.Email), "Email");
+        formData.Add(new StringContent(obj.PhoneNumber), "PhoneNumber");
+        formData.Add(new StringContent(obj.Skillsets), "Skillsets");
+        formData.Add(new StringContent(obj.Hobby), "Hobby");
+
+        string FullAPI_URL = API_URL + "api/Home/EditStaff";
+
+        HttpClient httpClient = new HttpClient();
+
+        try
+        {
+            HttpResponseMessage response = await httpClient.PutAsync(FullAPI_URL, formData);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string result = response.Content.ReadAsStringAsync().Result;
+                throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
+            }
+            else
+            {
+                using var responseStream = await response.Content.ReadAsStreamAsync();
+                string res = response.Content.ReadAsStringAsync().Result;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
+        }
+        finally { };
+
+
         NavigationManager.NavigateTo("staffList");
     }
 

@@ -43,7 +43,7 @@
     <div class="row">
         <div class="col-md-8">
             <div class="form-group">
-                <input type="button" class="btn btn-danger" @onclick="@DeleteUser" value="Delete Staff" />
+                <input type="button" class="btn btn-danger" @onclick="@DeleteStaffExternalAPI" value="Delete Staff" />
                 <input type="button" class="btn btn-warning" @onclick="@Cancel" value="Cancel" />
             </div>
         </div>
@@ -63,9 +63,48 @@
     }
 
     // CRUD using internal services, instead of external API
-    protected async void DeleteUser()
+    protected async void DeleteStafInternalServices()
     {
         await userService.DeleteUser(obj);
+        NavigationManager.NavigateTo("staffList");
+    }
+
+    //CRUD using request to external API
+    protected async void DeleteStaffExternalAPI()
+    {
+        var formData = new MultipartFormDataContent();
+        formData.Add(new StringContent(obj.Id.ToString()), "Id");
+        formData.Add(new StringContent(obj.Username), "Username");
+        formData.Add(new StringContent(obj.Email), "Email");
+        formData.Add(new StringContent(obj.PhoneNumber), "PhoneNumber");
+        formData.Add(new StringContent(obj.Skillsets), "Skillsets");
+        formData.Add(new StringContent(obj.Hobby), "Hobby");
+
+        string FullAPI_URL = API_URL + "api/Home/DeleteStaff/" + obj.Id;
+
+        HttpClient httpClient = new HttpClient();
+
+        try
+        {
+            HttpResponseMessage response = await httpClient.DeleteAsync(FullAPI_URL);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string result = response.Content.ReadAsStringAsync().Result;
+                throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
+            }
+            else
+            {
+                using var responseStream = await response.Content.ReadAsStreamAsync();
+                string res = response.Content.ReadAsStringAsync().Result;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
+        }
+        finally { };
+
         NavigationManager.NavigateTo("staffList");
     }
 

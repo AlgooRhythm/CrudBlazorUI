@@ -20,7 +20,7 @@
             <div class="for-group">
                 <label for="Email" class="control-label">Email</label>
                 <input form="Email" class="form-control" @bind="obj.Email"></input>
-            </div>
+            </div><br/>
             <div class="for-group">
                 <label for="PhoneNumber" class="control-label">Phone Number</label>
                 <input form="PhoneNumber" class="form-control" @bind="obj.PhoneNumber"></input>
@@ -40,7 +40,7 @@
     <div class="row">
         <div class="col-md-8">
             <div class="form-group">
-                <input type="button" class="btn btn-success" @onclick="@CreateNewUser" value="Create" />
+                <input type="button" class="btn btn-success" @onclick="@CreateNewStaffExternalAPI" value="Create" />
                 <input type="button" class="btn btn-warning" @onclick="@Cancel" value="Cancel" />
             </div>
         </div>
@@ -51,15 +51,15 @@
     string API_URL = "https://localhost:7186/";
     User obj = new User();
 
-    // CRUD using internal services, instead of external API
-    protected async void CreateNewUser()
+    // CRUD using internal services
+    protected async void CreateNewStaffInternalServices()
     {
         await userService.AddNewUser(obj);
         NavigationManager.NavigateTo("staffList");
     }
 
     //CRUD using request to external API 
-    protected async void CreateNewStaff()
+    protected async void CreateNewStaffExternalAPI()
     {
         var formData = new MultipartFormDataContent();
         formData.Add(new StringContent(obj.Username), "Username");
@@ -71,12 +71,28 @@
         string FullAPI_URL = API_URL + "api/Home/CreateNewStaff";
 
         HttpClient httpClient = new HttpClient();
-        HttpResponseMessage response = await httpClient.PostAsync(FullAPI_URL, formData);
-        httpClient.Dispose();
-        using var responseStream = await response.Content.ReadAsStreamAsync();
 
-        string res = response.Content.ReadAsStringAsync().Result;
-        await JsRuntime.InvokeVoidAsync("alert", res);
+        try
+        {
+            HttpResponseMessage response = await httpClient.PostAsync(FullAPI_URL, formData);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string result = response.Content.ReadAsStringAsync().Result;
+                throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
+            }
+            else
+            {
+                using var responseStream = await response.Content.ReadAsStreamAsync();
+                string res = response.Content.ReadAsStringAsync().Result;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
+        }
+        finally { };
+
 
         NavigationManager.NavigateTo("staffList");
     }
