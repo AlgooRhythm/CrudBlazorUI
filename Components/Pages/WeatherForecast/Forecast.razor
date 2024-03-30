@@ -1,0 +1,121 @@
+﻿@page "/WeatherForecast/Forecast"
+@using System.Text.Json
+@using WeatherForecastUI.Model
+@rendermode InteractiveServer
+
+<PageTitle>Weather Forecast</PageTitle>
+
+<h3>Weather Forecast</h3>
+
+<form>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="for-group">
+                <label for="Longitude" class="control-label">Longitude :</label>
+                <input @bind="Longitude"/>&nbsp;
+            </div><br />
+            <div class="for-group">
+                <label for="Latitude" class="control-label">Latitude  :</label>
+                <input @bind="Latitude" />&nbsp;
+            </div><br />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <input type="button" class="btn btn-success" @onclick="ForecastWeather" value="Forecast Weather" />
+                <input type="button" class="btn btn-danger" @onclick="ResetInputValues" value="Reset" />
+            </div>
+        </div>
+    </div>
+</form><br/>
+
+@if (isTableVisible)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Values</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Date</td>
+                <td role="status">@WeatherDate</td>
+            </tr>
+            <tr>
+                <td>Temperature</td>
+                <td role="status">@WeatherTemperature</td>
+            </tr>
+            <tr>
+                <td>Summary</td>
+                <td role="status">@WeatherSummary</td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+@* <ValidationMessage For="@(() => Longitude)" /> *@
+
+@code {
+    string API_URL = "https://localhost:7186/";
+
+    Location obj = new Location();
+    private bool isTableVisible = false;
+
+    public string Longitude { get; set; }
+    public string Latitude { get; set; }
+    private string WeatherDate { get; set; }
+    private string WeatherTemperature { get; set; }
+    private string WeatherSummary { get; set; }
+
+    private async void ForecastWeather()
+    {
+        isTableVisible = true; 
+
+        var formData = new MultipartFormDataContent();
+        formData.Add(new StringContent(obj.Longitude.ToString()), "Longitude");
+        formData.Add(new StringContent(obj.Latitude.ToString()), "Latitude");
+
+        string FullAPI_URL = API_URL + "api/Home/GetWeatherForecast";
+
+        HttpClient httpClient = new HttpClient();
+
+        try
+        {
+            HttpResponseMessage response = await httpClient.PostAsync(FullAPI_URL, formData);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string result = response.Content.ReadAsStringAsync().Result;
+                throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
+            }
+            else
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var weatherData = JsonSerializer.Deserialize<Weather>(json);
+
+                WeatherDate = weatherData.Date.ToShortDateString();
+                WeatherTemperature = weatherData.Temperature.ToString();
+                WeatherSummary = weatherData.Summary;
+
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
+        }
+        finally { };
+
+    }
+
+    private void ResetInputValues()
+    {
+        isTableVisible = false;
+
+        Longitude = null;
+        Latitude  = null;
+    }
+}
