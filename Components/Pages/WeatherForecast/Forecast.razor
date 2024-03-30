@@ -6,21 +6,6 @@
 
 <h3>Weather Forecast</h3>
 
-@* <div class="form-group">
-    <label for="longitude">Longitude:</label>
-    <input id="longitude" class="form-control" @bind="Longitude" @oninput="ValidateLongitude" />
-    <p style="display: @LongitudeErrorMessageDisplay; color: red; font-weight: bold;">Please insert a valid Longitude value (number with\without decimal point value only)</p>
-</div>
-
-<div class="form-group">
-    <label for="latitude">Latitude:</label>
-    <input id="latitude" class="form-control" @bind="Latitude" @oninput="ValidateLatitude" />
-    <p style="display: @LatitudeErrorMessageDisplay; color: red; font-weight: bold;">Please insert a valid Latitude value (number with\without decimal point value only)</p>
-</div>
-
-<input type="button" class="@submitButtonClass" disabled="@submitButtonDisabled" @onclick="ForecastWeather" value="Forecast Weather" />
- *@
-
 <form>
     <div class="row">
         <div class="col-md-8">
@@ -94,50 +79,45 @@
 
     private void ValidateLongitude(ChangeEventArgs e)
     {
-        if (!double.TryParse(e.Value.ToString(), out double value))
-        {
-            LongitudeErrorMessageDisplay = "block";
-            submitButtonDisabled = true;
-            submitButtonClass = "btn btn-secondary"; // Change button class
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(e.Value.ToString()))
-        {
-            LongitudeErrorMessageDisplay = "block";
-            submitButtonDisabled = true;
-            submitButtonClass = "btn btn-secondary"; // Change button class
-            return;
-        }
-
-        Longitude = value; // Update the Longitude property if valid
-        LongitudeErrorMessageDisplay = "none"; // Hide Longitude error message
-        submitButtonDisabled = false;
-        submitButtonClass = "btn btn-success"; // Reset button class
+        ValidateInput(e.Value.ToString(), "Longitude");
     }
 
     private void ValidateLatitude(ChangeEventArgs e)
     {
-        if (!double.TryParse(e.Value.ToString(), out double value))
+        ValidateInput(e.Value.ToString(), "Latitude");
+    }
+
+    private void ValidateInput(string value, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
         {
-            LatitudeErrorMessageDisplay = "block";
-            submitButtonDisabled = true;
-            submitButtonClass = "btn btn-secondary"; // Change button class
+            SetErrorMessageDisplay(true, fieldName);
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(e.Value.ToString()))
+        if (!double.TryParse(value, out double doubleValue))
         {
-            LatitudeErrorMessageDisplay = "block";
-            submitButtonDisabled = true;
-            submitButtonClass = "btn btn-secondary"; // Change button class
+            SetErrorMessageDisplay(true, fieldName);
             return;
         }
 
-        Latitude = value; // Update the Latitude property if valid
-        LatitudeErrorMessageDisplay = "none"; // Hide Latitude error message
-        submitButtonDisabled = false;
-        submitButtonClass = "btn btn-success"; // Reset button class
+        // No error, reset error message and button properties
+        SetErrorMessageDisplay(false, fieldName);
+    }
+
+    private void SetErrorMessageDisplay(bool display, string fieldName)
+    {
+        if (fieldName == "Longitude")
+        {
+            LongitudeErrorMessageDisplay = display ? "block" : "none";
+        }
+        else if (fieldName == "Latitude")
+        {
+            LatitudeErrorMessageDisplay = display ? "block" : "none";
+        }
+
+        submitButtonDisabled = display;
+        submitButtonClass = display ? "btn btn-secondary" : "btn btn-success";
     }
 
     private void ResetInputValues()
