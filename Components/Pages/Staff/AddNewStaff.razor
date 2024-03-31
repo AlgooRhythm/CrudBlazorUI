@@ -43,11 +43,11 @@
             <div class="form-group">
                 @if (globalSettingsService.IsUsingExternalAPI == false)
                 {
-                    <input type="button" style="margin-right: 10px;" class="btn btn-success" @onclick="@CreateNewStaffInternalServices" value="Create (internal services)" />
+                    <input type="button" style="margin-right: 10px;" class="btn btn-success" @onclick="@CreateNewStaffInternalServices" value="Create" />
                 }
                 else
                 {
-                    <input type="button" style="margin-right: 10px;" class="btn btn-success" @onclick="@CreateNewStaffExternalAPI" value="Create (external API)" />
+                    <input type="button" style="margin-right: 10px;" class="btn btn-success" @onclick="@CreateNewStaffExternalAPI" value="Create" />
                 }
                 <input type="button" class="btn btn-warning" @onclick="@Cancel" value="Cancel" />
             </div>

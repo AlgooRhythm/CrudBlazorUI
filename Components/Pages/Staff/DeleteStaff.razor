@@ -46,11 +46,11 @@
             <div class="form-group">
                 @if (globalSettingsService.IsUsingExternalAPI == false)
                 {
-                    <input type="button" style="margin-right: 10px;" class="btn btn-danger" @onclick="@DeleteStaffInternalServices" value="Delete Staff (internal services)" />
+                    <input type="button" style="margin-right: 10px;" class="btn btn-danger" @onclick="@DeleteStaffInternalServices" value="Delete Staff" />
                 }
                 else
                 {
-                    <input type="button" style="margin-right: 10px;" class="btn btn-danger" @onclick="@DeleteStaffExternalAPI" value="Delete Staff (external API)" />
+                    <input type="button" style="margin-right: 10px;" class="btn btn-danger" @onclick="@DeleteStaffExternalAPI" value="Delete Staff" />
                 }
                 <input type="button" class="btn btn-warning" @onclick="@Cancel" value="Cancel" />
             </div>
@@ -66,7 +66,40 @@
 
     protected override async Task OnInitializedAsync()
     {
-        obj = await Task.Run(() => userService.GetUserById(Convert.ToInt32(Id)));
+        @if (globalSettingsService.IsUsingExternalAPI == false)
+        {
+            obj = await Task.Run(() => userService.GetUserById(Convert.ToInt32(Id)));
+        }
+        else
+        {
+            string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetUserById/" + Id;
+
+            HttpClient httpClient = new HttpClient();
+
+            try
+            {
+                HttpResponseMessage response = await httpClient.GetAsync(FullAPI_URL);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string result = response.Content.ReadAsStringAsync().Result;
+                    throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
+                }
+                else
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    obj = JsonSerializer.Deserialize<User>(json);
+
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
+            }
+            finally { };
+
+        }
     }
 
     // CRUD using internal services, instead of external API
