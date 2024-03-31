@@ -85,22 +85,23 @@
         ValidateInput(e.Value.ToString(), "Latitude");
     }
 
-    private void ValidateInput(string value, string fieldName)
+    private bool ValidateInput(string value, string fieldName)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
             SetErrorMessageDisplay(true, fieldName);
-            return;
+            return false;
         }
 
         if (!double.TryParse(value, out double doubleValue))
         {
             SetErrorMessageDisplay(true, fieldName);
-            return;
+            return false;
         }
 
         // No error, reset error message and button properties
         SetErrorMessageDisplay(false, fieldName);
+        return true;
     }
 
     private void SetErrorMessageDisplay(bool display, string fieldName)
@@ -108,10 +109,12 @@
         if (fieldName == "Longitude")
         {
             LongitudeErrorMessageDisplay = display ? "block" : "none";
+            isTableVisible = false;
         }
         else if (fieldName == "Latitude")
         {
             LatitudeErrorMessageDisplay = display ? "block" : "none";
+            isTableVisible = false;
         }
 
         submitButtonDisabled = display;
@@ -133,29 +136,35 @@
 
     private async void ForecastWeatherExternalAPI()
     {
-        try
+        var IsValidateLongitude = ValidateInput(Longitude.ToString(), "Longitude");
+        var IsValidateLatitude  = ValidateInput(Latitude.ToString(), "Latitude");
+
+        if (IsValidateLongitude == true && IsValidateLatitude == true)
         {
-            isTableVisible = true;
+            try
+            {
+                isTableVisible = true;
 
-            Location obj = new Location();
+                Location obj = new Location();
 
-            var formData = new MultipartFormDataContent();
-            formData.Add(new StringContent(obj.Longitude.ToString()), "Longitude");
-            formData.Add(new StringContent(obj.Latitude.ToString()), "Latitude");
+                var formData = new MultipartFormDataContent();
+                formData.Add(new StringContent(obj.Longitude.ToString()), "Longitude");
+                formData.Add(new StringContent(obj.Latitude.ToString()), "Latitude");
 
-            string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetWeatherForecast";
-            string jsonData = await APIGateway.ForecastWeatherExternalAPI(FullAPI_URL, formData);
-            var weatherData = JsonSerializer.Deserialize<Weather>(jsonData);
+                string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetWeatherForecast";
+                string jsonData = await APIGateway.ForecastWeatherExternalAPI(FullAPI_URL, formData);
+                var weatherData = JsonSerializer.Deserialize<Weather>(jsonData);
 
-            WeatherDate = weatherData.Date.ToShortDateString();
-            WeatherTemperature = weatherData.Temperature.ToString();
-            WeatherSummary = weatherData.Summary;
+                WeatherDate = weatherData.Date.ToShortDateString();
+                WeatherTemperature = weatherData.Temperature.ToString();
+                WeatherSummary = weatherData.Summary;
 
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            throw new Exception($"An error occurred: {ex.Message}");
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred: {ex.Message}");
+            }
         }
 
     }
