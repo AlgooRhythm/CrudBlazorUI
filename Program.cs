@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using WeatherForecastUI.Components;
 using WeatherForecastUI.Context;
 using WeatherForecastUI.Services;
+using WeatherForecastUI.Services.GlobalSettings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+builder.Services.AddSingleton<GlobalSettingsService>();
 builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();

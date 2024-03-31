@@ -2,6 +2,7 @@
 @page "/Staff/staffList"
 @using WeatherForecastUI.Model
 @inject WeatherForecastUI.Services.UserService userService
+@inject WeatherForecastUI.Services.GlobalSettings.GlobalSettingsService globalSettingsService
 
 <h3>List of Staff</h3>
 
@@ -56,6 +57,46 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        EmpObj = await Task.Run(() => userService.GetAllUsers());
+        @if (globalSettingsService.IsUsingExternalAPI == false) // CRUD using internal services
+        {
+            EmpObj = await Task.Run(() => userService.GetAllUsers());
+        }
+        else //CRUD using request to external API
+        {            
+            string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetAllStaff";
+
+            HttpClient httpClient = new HttpClient();
+            EmpObj = await httpClient.GetFromJsonAsync<List<User>>(FullAPI_URL);
+        }
     }
+
+    private async void GetStaffList()
+    {
+        string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetAllStaff";
+
+        HttpClient httpClient = new HttpClient();
+
+        try
+        {
+            HttpResponseMessage response = await httpClient.GetAsync(FullAPI_URL);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string result = response.Content.ReadAsStringAsync().Result;
+                throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
+            }
+            else
+            {
+                using var responseStream = await response.Content.ReadAsStreamAsync();
+                string res = response.Content.ReadAsStringAsync().Result;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
+        }
+        finally { };
+
+    }
+
 }

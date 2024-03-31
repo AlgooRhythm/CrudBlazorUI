@@ -42,8 +42,7 @@ namespace WeatherForecastUI.Services
         //Get User Record by Id
         public async Task<User> GetUserById(int id)
         {
-            User user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-            return user;
+            return await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         //Update User Data

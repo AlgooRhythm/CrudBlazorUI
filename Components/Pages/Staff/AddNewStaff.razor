@@ -1,6 +1,7 @@
 ﻿@page "/Staff/AddNewStaff"
 @using WeatherForecastUI.Model
 @inject WeatherForecastUI.Services.UserService userService
+@inject WeatherForecastUI.Services.GlobalSettings.GlobalSettingsService globalSettingsService
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
@@ -40,7 +41,14 @@
     <div class="row">
         <div class="col-md-8">
             <div class="form-group">
-                <input type="button" class="btn btn-success" @onclick="@CreateNewStaffExternalAPI" value="Create" />
+                @if (globalSettingsService.IsUsingExternalAPI == false)
+                {
+                    <input type="button" style="margin-right: 10px;" class="btn btn-success" @onclick="@CreateNewStaffInternalServices" value="Create (internal services)" />
+                }
+                else
+                {
+                    <input type="button" style="margin-right: 10px;" class="btn btn-success" @onclick="@CreateNewStaffExternalAPI" value="Create (external API)" />
+                }
                 <input type="button" class="btn btn-warning" @onclick="@Cancel" value="Cancel" />
             </div>
         </div>
@@ -48,7 +56,6 @@
 </form>
 
 @code {
-    string API_URL = "https://localhost:7186/";
     User obj = new User();
 
     // CRUD using internal services
@@ -68,7 +75,7 @@
         formData.Add(new StringContent(obj.Skillsets), "Skillsets");
         formData.Add(new StringContent(obj.Hobby), "Hobby");
 
-        string FullAPI_URL = API_URL + "api/Home/CreateNewStaff";
+        string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/CreateNewStaff";
 
         HttpClient httpClient = new HttpClient();
 

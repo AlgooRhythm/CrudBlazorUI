@@ -1,6 +1,7 @@
 ﻿@page "/Staff/DeleteStaff/{Id}"
 @using WeatherForecastUI.Model
 @inject WeatherForecastUI.Services.UserService userService
+@inject WeatherForecastUI.Services.GlobalSettings.GlobalSettingsService globalSettingsService
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
@@ -43,7 +44,14 @@
     <div class="row">
         <div class="col-md-8">
             <div class="form-group">
-                <input type="button" class="btn btn-danger" @onclick="@DeleteStaffExternalAPI" value="Delete Staff" />
+                @if (globalSettingsService.IsUsingExternalAPI == false)
+                {
+                    <input type="button" style="margin-right: 10px;" class="btn btn-danger" @onclick="@DeleteStaffInternalServices" value="Delete Staff (internal services)" />
+                }
+                else
+                {
+                    <input type="button" style="margin-right: 10px;" class="btn btn-danger" @onclick="@DeleteStaffExternalAPI" value="Delete Staff (external API)" />
+                }
                 <input type="button" class="btn btn-warning" @onclick="@Cancel" value="Cancel" />
             </div>
         </div>
@@ -54,7 +62,6 @@
     [Parameter]
     public string Id { get; set; }
 
-    string API_URL = "https://localhost:7186/";
     User obj = new User();
 
     protected override async Task OnInitializedAsync()
@@ -63,7 +70,7 @@
     }
 
     // CRUD using internal services, instead of external API
-    protected async void DeleteStafInternalServices()
+    protected async void DeleteStaffInternalServices()
     {
         await userService.DeleteUser(obj);
         NavigationManager.NavigateTo("Staff/staffList");
@@ -80,7 +87,7 @@
         formData.Add(new StringContent(obj.Skillsets), "Skillsets");
         formData.Add(new StringContent(obj.Hobby), "Hobby");
 
-        string FullAPI_URL = API_URL + "api/Home/DeleteStaff/" + obj.Id;
+        string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/DeleteStaff/" + obj.Id;
 
         HttpClient httpClient = new HttpClient();
 

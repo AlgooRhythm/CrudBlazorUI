@@ -1,7 +1,7 @@
-﻿@page "/"
-@page "/WeatherForecast/ForecastOriginal"
+﻿@page "/WeatherForecast/Forecast"
 @using System.Text.Json
 @using WeatherForecastUI.Model
+@inject WeatherForecastUI.Services.GlobalSettings.GlobalSettingsService globalSettingsService
 @rendermode InteractiveServer
 
 <h3>Weather Forecast</h3>
@@ -47,8 +47,8 @@
                 <td role="status">@WeatherDate</td>
             </tr>
             <tr>
-                <td>Temperature</td>
-                <td role="status">@WeatherTemperature</td>
+                <td>Temperature (C)</td>
+                <td role="status">@WeatherTemperature°C</td>
             </tr>
             <tr>
                 <td>Summary</td>
@@ -59,8 +59,6 @@
 }
 
 @code {
-    string API_URL = "https://localhost:7186/";
-
     private double? Latitude { get; set; }
     private double? Longitude { get; set; }
 
@@ -141,7 +139,7 @@
         formData.Add(new StringContent(obj.Longitude.ToString()), "Longitude");
         formData.Add(new StringContent(obj.Latitude.ToString()), "Latitude");
 
-        string FullAPI_URL = API_URL + "api/Home/GetWeatherForecast";
+        string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetWeatherForecast";
 
         HttpClient httpClient = new HttpClient();
 
