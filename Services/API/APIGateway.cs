@@ -22,6 +22,34 @@ namespace WeatherForecastUI.Services.API
         }
 
         #region Staff CRUD
+        public async Task<Stream> GetAllStaffList()
+        {
+            string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetAllStaff";
+
+            HttpClient httpClient = new HttpClient();
+
+            try
+            {
+                HttpResponseMessage response = await httpClient.GetAsync(FullAPI_URL);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string result = response.Content.ReadAsStringAsync().Result;
+                    throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
+                }
+                else
+                {
+                    return await response.Content.ReadAsStreamAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
+            }
+            finally { };
+
+        }
+
         #endregion
 
         #region Weather Forecast

@@ -1,8 +1,10 @@
 ﻿@page "/"
 @page "/Staff/staffList"
+@using System.Text.Json
 @using WeatherForecastUI.Model
 @inject WeatherForecastUI.Services.UserService userService
 @inject WeatherForecastUI.Services.GlobalSettings.GlobalSettingsService globalSettingsService
+@inject WeatherForecastUI.Services.API.APIGateway APIGateway
 
 <h3>List of Staff</h3>
 
@@ -63,40 +65,30 @@ else
         }
         else //CRUD using request to external API
         {            
-            string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetAllStaff";
-
             HttpClient httpClient = new HttpClient();
-            EmpObj = await httpClient.GetFromJsonAsync<List<User>>(FullAPI_URL);
+
+            try
+            {
+                Stream stream = await APIGateway.GetAllStaffList();
+
+                // Read the data from the stream
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    string data = await reader.ReadToEndAsync();
+                    EmpObj = JsonSerializer.Deserialize<List<User>>(data);
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                // Handle any HTTP request exceptions
+                Console.WriteLine($"Error occurred: {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                // Handle any IO exceptions
+                Console.WriteLine($"Error occurred while reading stream: {ex.Message}");
+            }
+
         }
     }
-
-    private async void GetStaffList()
-    {
-        string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetAllStaff";
-
-        HttpClient httpClient = new HttpClient();
-
-        try
-        {
-            HttpResponseMessage response = await httpClient.GetAsync(FullAPI_URL);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                string result = response.Content.ReadAsStringAsync().Result;
-                throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
-            }
-            else
-            {
-                using var responseStream = await response.Content.ReadAsStreamAsync();
-                string res = response.Content.ReadAsStringAsync().Result;
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
-        }
-        finally { };
-
-    }
-
 }
