@@ -2,6 +2,7 @@
 @using System.Text.Json
 @using WeatherForecastUI.Model
 @inject WeatherForecastUI.Services.GlobalSettings.GlobalSettingsService globalSettingsService
+@inject WeatherForecastUI.Services.API.APIGateway APIGateway
 @rendermode InteractiveServer
 
 <h3>Weather Forecast</h3>
@@ -68,7 +69,6 @@
     private bool submitButtonDisabled = false;
     private string submitButtonClass = "btn btn-success";
 
-    Location obj = new Location();
     private bool isTableVisible = false;
 
     private string WeatherDate { get; set; }
@@ -133,42 +133,30 @@
 
     private async void ForecastWeatherExternalAPI()
     {
-        isTableVisible = true;
-
-        var formData = new MultipartFormDataContent();
-        formData.Add(new StringContent(obj.Longitude.ToString()), "Longitude");
-        formData.Add(new StringContent(obj.Latitude.ToString()), "Latitude");
-
-        string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetWeatherForecast";
-
-        HttpClient httpClient = new HttpClient();
-
         try
         {
-            HttpResponseMessage response = await httpClient.PostAsync(FullAPI_URL, formData);
+            isTableVisible = true;
 
-            if (!response.IsSuccessStatusCode)
-            {
-                string result = response.Content.ReadAsStringAsync().Result;
-                throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
-            }
-            else
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                var weatherData = JsonSerializer.Deserialize<Weather>(json);
+            Location obj = new Location();
 
-                WeatherDate = weatherData.Date.ToShortDateString();
-                WeatherTemperature = weatherData.Temperature.ToString();
-                WeatherSummary = weatherData.Summary;
+            var formData = new MultipartFormDataContent();
+            formData.Add(new StringContent(obj.Longitude.ToString()), "Longitude");
+            formData.Add(new StringContent(obj.Latitude.ToString()), "Latitude");
 
-                StateHasChanged();
-            }
+            string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetWeatherForecast";
+            string jsonData = await APIGateway.ForecastWeatherExternalAPI(FullAPI_URL, formData);
+            var weatherData = JsonSerializer.Deserialize<Weather>(jsonData);
+
+            WeatherDate = weatherData.Date.ToShortDateString();
+            WeatherTemperature = weatherData.Temperature.ToString();
+            WeatherSummary = weatherData.Summary;
+
+            StateHasChanged();
         }
         catch (Exception ex)
         {
-            throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
+            throw new Exception($"An error occurred: {ex.Message}");
         }
-        finally { };
 
     }
 }
