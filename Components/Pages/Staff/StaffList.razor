@@ -74,6 +74,8 @@ else
                 {
                     string data = await reader.ReadToEndAsync();
                     EmpObj = JsonSerializer.Deserialize<List<User>>(data);
+
+                    StateHasChanged();
                 }
             }
             catch (HttpRequestException ex)

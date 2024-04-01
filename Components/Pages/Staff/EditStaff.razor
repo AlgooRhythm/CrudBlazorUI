@@ -73,33 +73,8 @@
         }
         else
         {
-            string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetStaffById/" + Id;
-
-            HttpClient httpClient = new HttpClient();
-
-            try
-            {
-                HttpResponseMessage response = await httpClient.GetAsync(FullAPI_URL);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    string result = response.Content.ReadAsStringAsync().Result;
-                    throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
-                }
-                else
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    obj = JsonSerializer.Deserialize<User>(json);
-
-                    StateHasChanged();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
-            }
-            finally { };
-
+            string jsonData = await APIGateway.GetStaffbyId(Convert.ToInt32(Id));
+            obj = JsonSerializer.Deserialize<User>(jsonData);
         }
     }
 
