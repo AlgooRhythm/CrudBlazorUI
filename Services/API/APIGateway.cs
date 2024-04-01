@@ -31,11 +31,9 @@ namespace WeatherForecastUI.Services.API
         {
             string FullAPI_URL = globalSettingsService.APIurl.ToString() + GetAllStaffListAPIurl;
 
-            HttpClient httpClient = new HttpClient();
-
             try
             {
-                HttpResponseMessage response = await httpClient.GetAsync(FullAPI_URL);
+                HttpResponseMessage response = await _httpClient.GetAsync(FullAPI_URL);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -59,11 +57,9 @@ namespace WeatherForecastUI.Services.API
         {
             string FullAPI_URL = globalSettingsService.APIurl.ToString() + GetStaffByIdAPIurl + id;
 
-            HttpClient httpClient = new HttpClient();
-
             try
             {
-                HttpResponseMessage response = await httpClient.GetAsync(FullAPI_URL);
+                HttpResponseMessage response = await _httpClient.GetAsync(FullAPI_URL);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -87,11 +83,9 @@ namespace WeatherForecastUI.Services.API
         {
             string FullAPI_URL = globalSettingsService.APIurl.ToString() + CreateStaffAPIurl;
 
-            HttpClient httpClient = new HttpClient();
-
             try
             {
-                HttpResponseMessage response = await httpClient.PostAsync(FullAPI_URL, formData);
+                HttpResponseMessage response = await _httpClient.PostAsync(FullAPI_URL, formData);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -110,11 +104,9 @@ namespace WeatherForecastUI.Services.API
         {
             string FullAPI_URL = globalSettingsService.APIurl.ToString() + EditStaffAPIurl;
 
-            HttpClient httpClient = new HttpClient();
-
             try
             {
-                HttpResponseMessage response = await httpClient.PutAsync(FullAPI_URL, formData);
+                HttpResponseMessage response = await _httpClient.PutAsync(FullAPI_URL, formData);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -133,11 +125,9 @@ namespace WeatherForecastUI.Services.API
         {
             string FullAPI_URL = globalSettingsService.APIurl.ToString() + DeleteStaffAPIurl + id;
 
-            HttpClient httpClient = new HttpClient();
-
             try
             {
-                HttpResponseMessage response = await httpClient.DeleteAsync(FullAPI_URL);
+                HttpResponseMessage response = await _httpClient.DeleteAsync(FullAPI_URL);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -159,11 +149,9 @@ namespace WeatherForecastUI.Services.API
         {
             string FullAPI_URL = globalSettingsService.APIurl.ToString() + GetWeatherForecastAPIurl;
 
-            HttpClient httpClient = new HttpClient();
-
             try
             {
-                HttpResponseMessage response = await httpClient.PostAsync(FullAPI_URL, formData);
+                HttpResponseMessage response = await _httpClient.PostAsync(FullAPI_URL, formData);
 
                 if (!response.IsSuccessStatusCode)
                 {
