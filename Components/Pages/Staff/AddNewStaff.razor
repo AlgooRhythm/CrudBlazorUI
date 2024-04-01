@@ -2,6 +2,7 @@
 @using WeatherForecastUI.Model
 @inject WeatherForecastUI.Services.UserService userService
 @inject WeatherForecastUI.Services.GlobalSettings.GlobalSettingsService globalSettingsService
+@inject WeatherForecastUI.Services.API.APIGateway APIGateway
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
@@ -66,7 +67,7 @@
     }
 
     //CRUD using request to external API 
-    protected async void CreateNewStaffExternalAPI()
+    protected void CreateNewStaffExternalAPI()
     {
         var formData = new MultipartFormDataContent();
         formData.Add(new StringContent(obj.Username), "Username");
@@ -75,31 +76,20 @@
         formData.Add(new StringContent(obj.Skillsets), "Skillsets");
         formData.Add(new StringContent(obj.Hobby), "Hobby");
 
-        string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/CreateNewStaff";
-
-        HttpClient httpClient = new HttpClient();
-
         try
         {
-            HttpResponseMessage response = await httpClient.PostAsync(FullAPI_URL, formData);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                string result = response.Content.ReadAsStringAsync().Result;
-                throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
-            }
-            else
-            {
-                using var responseStream = await response.Content.ReadAsStreamAsync();
-                string res = response.Content.ReadAsStringAsync().Result;
-            }
+            APIGateway.CreateNewStaff(formData);
         }
-        catch (Exception ex)
+        catch (HttpRequestException ex)
         {
-            throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
+            // Handle any HTTP request exceptions
+            Console.WriteLine($"Error occurred: {ex.Message}");
         }
-        finally { };
-
+        catch (IOException ex)
+        {
+            // Handle any IO exceptions
+            Console.WriteLine($"Error occurred while reading stream: {ex.Message}");
+        }
 
         NavigationManager.NavigateTo("Staff/staffList");
     }

@@ -1,7 +1,9 @@
 ﻿@page "/Staff/DeleteStaff/{Id}"
+@using System.Text.Json
 @using WeatherForecastUI.Model
 @inject WeatherForecastUI.Services.UserService userService
 @inject WeatherForecastUI.Services.GlobalSettings.GlobalSettingsService globalSettingsService
+@inject WeatherForecastUI.Services.API.APIGateway APIGateway
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
@@ -66,39 +68,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        @if (globalSettingsService.IsUsingExternalAPI == false)
+        @if (globalSettingsService.IsUsingExternalAPI == false) // CRUD using internal services
         {
             obj = await Task.Run(() => userService.GetUserById(Convert.ToInt32(Id)));
         }
-        else
+        else //CRUD using request to external API
         {
-            string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetUserById/" + Id;
-
-            HttpClient httpClient = new HttpClient();
-
-            try
-            {
-                HttpResponseMessage response = await httpClient.GetAsync(FullAPI_URL);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    string result = response.Content.ReadAsStringAsync().Result;
-                    throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
-                }
-                else
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    obj = JsonSerializer.Deserialize<User>(json);
-
-                    StateHasChanged();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
-            }
-            finally { };
-
+            string jsonData = await APIGateway.GetStaffbyId(Convert.ToInt32(Id));
+            obj = JsonSerializer.Deserialize<User>(jsonData);
         }
     }
 
@@ -110,41 +87,9 @@
     }
 
     //CRUD using request to external API
-    protected async void DeleteStaffExternalAPI()
+    protected void DeleteStaffExternalAPI()
     {
-        var formData = new MultipartFormDataContent();
-        formData.Add(new StringContent(obj.Id.ToString()), "Id");
-        formData.Add(new StringContent(obj.Username), "Username");
-        formData.Add(new StringContent(obj.Email), "Email");
-        formData.Add(new StringContent(obj.PhoneNumber), "PhoneNumber");
-        formData.Add(new StringContent(obj.Skillsets), "Skillsets");
-        formData.Add(new StringContent(obj.Hobby), "Hobby");
-
-        string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/DeleteStaff/" + obj.Id;
-
-        HttpClient httpClient = new HttpClient();
-
-        try
-        {
-            HttpResponseMessage response = await httpClient.DeleteAsync(FullAPI_URL);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                string result = response.Content.ReadAsStringAsync().Result;
-                throw new Exception("Error Occured at the API Endpoint, Error Info " + result);
-            }
-            else
-            {
-                using var responseStream = await response.Content.ReadAsStreamAsync();
-                string res = response.Content.ReadAsStringAsync().Result;
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Error Occured ath the API Endpoint, Error Info" + ex.Message);
-        }
-        finally { };
-
+        APIGateway.DeleteStaff(Convert.ToInt32(Id));
         NavigationManager.NavigateTo("Staff/staffList");
     }
 

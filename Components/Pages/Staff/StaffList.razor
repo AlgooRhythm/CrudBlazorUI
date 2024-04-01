@@ -65,8 +65,6 @@ else
         }
         else //CRUD using request to external API
         {            
-            HttpClient httpClient = new HttpClient();
-
             try
             {
                 Stream stream = await APIGateway.GetAllStaffList();

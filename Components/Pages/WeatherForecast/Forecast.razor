@@ -151,8 +151,7 @@
                 formData.Add(new StringContent(obj.Longitude.ToString()), "Longitude");
                 formData.Add(new StringContent(obj.Latitude.ToString()), "Latitude");
 
-                string FullAPI_URL = globalSettingsService.APIurl.ToString() + "api/Home/GetWeatherForecast";
-                string jsonData = await APIGateway.ForecastWeatherExternalAPI(FullAPI_URL, formData);
+                string jsonData = await APIGateway.ForecastWeatherExternalAPI(formData);
                 var weatherData = JsonSerializer.Deserialize<Weather>(jsonData);
 
                 WeatherDate = weatherData.Date.ToShortDateString();
