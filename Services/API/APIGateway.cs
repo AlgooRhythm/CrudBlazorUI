@@ -13,12 +13,12 @@ namespace WeatherForecastUI.Services.API
         private readonly HttpClient _httpClient;
         private readonly GlobalSettingsService globalSettingsService;
 
-        string GetAllStaffListAPIurl = "api/Home/GetAllStaff";
-        string GetStaffByIdAPIurl = "api/Home/GetStaffById/";
-        string CreateStaffAPIurl = "api/Home/CreateNewStaff";
-        string EditStaffAPIurl = "api/Home/EditStaff";
-        string DeleteStaffAPIurl = "api/Home/DeleteStaff/";
-        string GetWeatherForecastAPIurl = "api/Home/GetWeatherForecast";
+        string GetAllStaffListAPIurl = "api/Staff/GetAllStaff";
+        string GetStaffByIdAPIurl = "api/Staff/GetStaffById/";
+        string CreateStaffAPIurl = "api/Staff/CreateNewStaff";
+        string EditStaffAPIurl = "api/Staff/EditStaff";
+        string DeleteStaffAPIurl = "api/Staff/DeleteStaff/";
+        string GetWeatherForecastAPIurl = "api/WeatherForecast/GetWeatherForecast";
 
         public APIGateway(HttpClient httpClient, GlobalSettingsService globalSettingsServices)
         {
